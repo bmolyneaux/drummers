@@ -220,17 +220,22 @@ const by=Object.fromEntries(N.map(n=>[n.id,n]));
 N.forEach(n=>{if(n.p&&!by[n.p])console.warn('missing',n.p);n.also=n.also.filter(a=>by[a]);n.kids=N.filter(k=>k.p===n.id)});
 const Y0=1920,Y1=2015,PXY=20,CW=172,CH=50,RH=60,PX=28,PY=48;
 N.forEach(n=>{n.x=PX+(n.year-Y0)*PXY});
-const rows=[];const free=(r,x)=>!(rows[r]||[]).some(([a,b])=>x<b+16&&x+CW>a-16);
+const rows=[],lines=[];
+const hit=(L,a,b,g)=>(L||[]).some(([x1,x2])=>a<x2+g&&b>x1-g);
+const free=(r,x)=>!hit(rows[r],x,x+CW,16)&&!hit(lines[r],x,x+CW,6);
 const put=(n,r)=>{r=Math.max(0,r);while(!free(r,n.x))r++;(rows[r]=rows[r]||[]).push([n.x,n.x+CW]);n.r=r};
-const clearPath=(r,a,b)=>!(rows[r]||[]).some(([x1,x2])=>x2>a&&x1<b);
-const trunk=(r,x)=>!(rows[r]||[]).some(([x1,x2])=>x>x1-4&&x<x2+4);
-const go=n=>{if(n.p){const P=by[n.p];const tx=P.x+18;let pick=-1;
- for(let k=0;k<40&&pick<0;k++){const r0=P.r+k;
-  if(k===0){if(free(r0,n.x)&&clearPath(r0,P.x+CW+1,n.x))pick=r0;continue}
-  if(k>1&&!trunk(r0-1,tx))break;
-  if(free(r0,n.x)&&clearPath(r0,tx-4,n.x))pick=r0}
- if(pick<0){pick=rows.length}
- put(n,pick)}else put(n,rows.length);n.kids.slice().sort((a,b)=>a.year-b.year).forEach(go)};
+const clearPath=(r,a,b)=>!hit(rows[r],a,b,2);
+const trunk=(r,x)=>!hit(rows[r],x,x,4);
+const reserve=(r,a,b)=>{(lines[r]=lines[r]||[]).push([a,b])};
+const go=n=>{if(n.p){const P=by[n.p];let pick=-1,ptx=0;
+ if(free(P.r,n.x)&&clearPath(P.r,P.x+CW+1,n.x))pick=P.r;
+ for(const off of [18,48,78,108,138]){if(pick>=0)break;const tx=P.x+off;
+  for(let k=1;k<60;k++){const r0=P.r+k;if(k>1&&!trunk(r0-1,tx))break;
+   if(free(r0,n.x)&&clearPath(r0,tx-4,n.x)){pick=r0;ptx=tx;break}}}
+ if(pick<0){pick=rows.length;ptx=P.x+18}
+ put(n,pick);n.tx=ptx;
+ if(n.r===P.r)reserve(P.r,P.x+CW,n.x);else{for(let r=P.r+1;r<n.r;r++)reserve(r,ptx-3,ptx+3);reserve(n.r,ptx-3,n.x)}
+}else put(n,rows.length);n.kids.slice().sort((a,b)=>a.year-b.year).forEach(go)};
 const loose=n=>!n.p&&!n.kids.length;
 N.filter(n=>!n.p&&n.kids.length).sort((a,b)=>a.year-b.year).forEach(go);
 // loose nodes: next to a drummer they influenced if any, else first free row
@@ -242,7 +247,7 @@ const W=PX*2+(Y1-Y0)*PXY+CW,H=PY+rows.length*RH;
 const E=[];N.forEach(n=>{if(n.p)E.push({a:n.p,b:n.id,s:0});n.also.forEach(a=>E.push({a,b:n.id,s:1}))});
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const path=e=>{const A=by[e.a],B=by[e.b];const ya=A.yy+CH/2,yb=B.yy+CH/2;
- if(!e.s&&A.r!==B.r&&yb>ya){const x1=A.x+18;return`M${x1},${A.yy+CH}L${x1},${yb-10}Q${x1},${yb} ${x1+10},${yb}L${B.x},${yb}`}
+ if(!e.s&&A.r!==B.r&&yb>ya){const x1=B.tx||A.x+18;return`M${x1},${A.yy+CH}L${x1},${yb-10}Q${x1},${yb} ${x1+10},${yb}L${B.x},${yb}`}
  if(B.x>A.x+CW+8){const x1=A.x+CW,m=(B.x-x1)/2;return`M${x1},${ya}C${x1+m},${ya} ${B.x-m},${yb} ${B.x},${yb}`}
  const x1=A.x+18,y1=yb>ya?A.yy+CH:A.yy;return`M${x1},${y1}C${x1},${yb} ${Math.min(x1,B.x-40)},${yb} ${B.x},${yb}`};
 const svg=document.getElementById('svg');
