@@ -36,7 +36,7 @@ label.tg input{width:20px;height:20px;accent-color:var(--red)}
 .node{cursor:pointer}.node:focus{outline:none}.node:focus rect.c{stroke-width:3}
 .dim{opacity:.16;transition:opacity .15s}
 .e{fill:none;stroke:var(--ink);stroke-width:2}.e.s{stroke:var(--muted);stroke-dasharray:5 4;stroke-width:1.5}
-.hot .e{stroke-width:2.6}.e.s{display:none}.e.s.on{display:inline}.lp{cursor:pointer}.lp text{pointer-events:none}.lp text{paint-order:stroke;stroke:var(--bg);stroke-width:3px}.lp.act text{fill:var(--red)}.lp.act line{stroke-opacity:1;stroke-width:2}.lp:focus{outline:none}.views{display:flex;gap:8px;margin:4px 0 18px}.views button{font:500 15px Inter,sans-serif;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}.views button.on{background:var(--red);border-color:var(--red);color:#fff}
+.hot .e{stroke-width:2.6}.e.s{display:none}.e.s.on{display:inline}.lp{cursor:pointer}.lp text{pointer-events:none}.lp text{paint-order:stroke;stroke:var(--bg);stroke-width:3px}.lp.act text{fill:var(--red)}.stem.act{stroke-opacity:1;stroke-width:2}.lp:focus{outline:none}.views{display:flex;gap:8px;margin:4px 0 18px}.views button{font:500 15px Inter,sans-serif;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}.views button.on{background:var(--red);border-color:var(--red);color:#fff}
 #tip{position:absolute;pointer-events:none;max-width:300px;background:var(--card);border:1px solid var(--rule);border-radius:8px;
  padding:10px 12px;font-size:14px;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.14);display:none;z-index:2}
 #tip b{font:600 17px Oswald,sans-serif}
@@ -117,7 +117,7 @@ const D=[
 ['blaine','Hal Blaine',5,1965,'The Wrecking Crew',['The Wrecking Crew (session)'],'krupa','Swing-era big-band drummers, Krupa first (commonly cited).'],
 ['stub','Clyde Stubblefield',6,1968,'James Brown',['James Brown',"The J.B.'s"],null,'Said the audience was his only influence; inspired by trains, factories and a parade.'],
 ['starks','Jabo Starks',6,1970,'James Brown',['Bobby "Blue" Bland','James Brown',"The J.B.'s",'B.B. King'],'coleman','Mentored by Cornelius "Tenoo" Coleman.'],
-['krupa','Gene Krupa',7,1937,'Benny Goodman Orchestra',['Benny Goodman Orchestra','Gene Krupa Orchestra'],'dodds','Studied Baby Dodds; also admired Chick Webb.',['webb']],
+['krupa','Gene Krupa',7,1940,'Benny Goodman Orchestra',['Benny Goodman Orchestra','Gene Krupa Orchestra'],'dodds','Studied Baby Dodds; also admired Chick Webb.',['webb']],
 ['mitchell','Mitch Mitchell',8,1968,'Jimi Hendrix Experience',['Georgie Fame & the Blue Flames','Jimi Hendrix Experience'],'elvin','Elvin Jones\'s jazz polyrhythms, brought to rock; also Buddy Rich.',['rich','philly']],
 ['jackson','Al Jackson Jr.',9,1966,"Booker T. & the M.G.'s",["Booker T. & the M.G.'s",'Willie Mitchell / Hi Records'],'jacksr','Learned on the bandstand in his father\'s Memphis big band.'],
 ['copeland','Stewart Copeland',10,1980,'The Police',['Curved Air','The Police','Animal Logic','Oysterhead'],'mitchell','Mitch Mitchell, plus jazz drummers (commonly cited).'],
@@ -246,13 +246,13 @@ const ISO=rows.length+1;N.filter(n=>loose(n)&&!linked(n)).sort((a,b)=>a.year-b.y
 N.forEach(n=>n.yy=PY+n.r*RH);const isoY=PY+ISO*RH-14,secY=PY+SEC*RH-14;
 const WL=PX*2+(Y1-Y0)*PXY+CW,HL=PY+rows.length*RH;
 N.forEach(n=>n.L={x:n.x,yy:n.yy,r:n.r,tx:n.tx});
-const TPXY=24,LV=21,ctx=document.createElement('canvas').getContext('2d');
+const TPXY=24,LV=27,TY0=1940,ctx=document.createElement('canvas').getContext('2d');
 const lw=n=>{ctx.font='600 13px Oswald, Impact, sans-serif';let w=ctx.measureText(n.name).width;return w+16};
-const lab=[];N.filter(n=>n.rank>0).sort((a,b)=>a.year-b.year||(a.rank||999)-(b.rank||999)).forEach(n=>{const x=PX+(n.year-Y0)*TPXY,w=lw(n);
+const lab=[];N.filter(n=>n.rank>0).sort((a,b)=>a.year-b.year||(a.rank||999)-(b.rank||999)).forEach(n=>{const x=PX+(n.year-TY0)*TPXY,w=lw(n);
  const fr=(sd,L)=>!lab.some(o=>o.sd===sd&&o.L===L&&x-4<o.x+o.w+6&&x+w>o.x-4);
  let L=0,sd=0;for(;;L++){if(fr(0,L)){sd=0;break}if(fr(1,L)){sd=1;break}}
  lab.push({x,w,L,sd,n});n.T={x,L,w}});
-const NU=Math.max(...lab.filter(o=>!o.sd).map(o=>o.L))+1,ND=Math.max(0,...lab.filter(o=>o.sd).map(o=>o.L+1)),TOP=24,BASE=TOP+NU*LV+12,HT=BASE+ND*LV+30,WT=PX*2+(Y1-Y0)*TPXY+160;
+const NU=Math.max(...lab.filter(o=>!o.sd).map(o=>o.L))+1,ND=Math.max(0,...lab.filter(o=>o.sd).map(o=>o.L+1)),TOP=24,BASE=TOP+NU*LV+12,HT=BASE+ND*LV+30,WT=PX*2+(Y1-TY0)*TPXY+160;
 let H=HL,W=WL,view='tree';
 const E=[];N.forEach(n=>{if(n.p)E.push({a:n.p,b:n.id,s:0});n.also.forEach(a=>E.push({a,b:n.id,s:1}))});
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -288,8 +288,8 @@ const light=id=>{const on=new Set([id]),eon=new Set();
  E.forEach((e,i)=>{if(e.s&&(e.a===id||e.b===id)){eon.add(i);on.add(e.a);on.add(e.b)}});svg.querySelectorAll('.e').forEach(p=>p.classList.toggle('on',eon.has(+p.dataset.i)));
  svg.querySelectorAll('.node').forEach(g=>g.classList.toggle('dim',!on.has(g.dataset.id)));
  svg.querySelectorAll('.e').forEach(p=>p.classList.toggle('dim',!eon.has(+p.dataset.i)));svg.classList.add('hot')};
-const clear=()=>{stopClip();svg.querySelectorAll('.lp.act').forEach(x=>x.classList.remove('act'));svg.querySelectorAll('.e.on').forEach(p=>p.classList.remove('on'));svg.querySelectorAll('.dim').forEach(x=>x.classList.remove('dim'));svg.classList.remove('hot');tip.style.display='none'};
-const show=g=>{const n=by[g.dataset.id];clearTimeout(qT);qT=setTimeout(()=>playClip(n.id),180);if(view==='tree')light(n.id);else{svg.querySelectorAll('.lp.act').forEach(x=>x.classList.remove('act'));g.classList.add('act')}
+const clear=()=>{stopClip();svg.querySelectorAll('.act').forEach(x=>x.classList.remove('act'));svg.querySelectorAll('.e.on').forEach(p=>p.classList.remove('on'));svg.querySelectorAll('.dim').forEach(x=>x.classList.remove('dim'));svg.classList.remove('hot');tip.style.display='none'};
+const show=g=>{const n=by[g.dataset.id];clearTimeout(qT);qT=setTimeout(()=>playClip(n.id),180);if(view==='tree')light(n.id);else{svg.querySelectorAll('.act').forEach(x=>x.classList.remove('act'));g.classList.add('act');const s=svg.querySelector(`.stem[data-s="${n.id}"]`);if(s)s.classList.add('act')}
  const inf=n.p?by[n.p].name:'None named';const also=n.also.map(a=>by[a].name).join(', ');
  const kids=N.filter(k=>k.p===n.id||k.also.includes(n.id)).map(k=>k.name).join(', ');
  tip.innerHTML=`<b>${esc(n.name)}</b>${n.rank?` <span class="m">· No. ${n.rank}</span>`:''}<br>
@@ -309,12 +309,13 @@ svg.innerHTML=`<g>${axis.join('')}${view!=='tree'?'':`<line x1="${PX}" x2="${W-P
 bind()};
 const renderTL=()=>{svg.classList.add('tl');W=WT;H=HT;document.getElementById('tree').style.width=W+'px';
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);
- const ax=[];for(let y=Y0;y<=2015;y++){const x=PX+(y-Y0)*TPXY,dec=y%10===0;ax.push(`<line x1="${x}" x2="${x}" y1="${BASE}" y2="${BASE+(dec?10:5)}" stroke="var(--muted)"/>`+(dec?`<line x1="${x}" x2="${x}" y1="${TOP-10}" y2="${H}" stroke="var(--rule)"/><text x="${x+4}" y="${TOP-2}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">${y}s</text>`:''))}
- const lp=lab.map(o=>{const n=o.n,top=n.rank>0,y=o.sd?BASE+(o.L+1)*LV+4:BASE-(o.L+1)*LV,c=top?'var(--red)':'var(--slate)',r=top?(n.rank<=20?5.5:4.5):3.5;
-  return`<g class="node lp" tabindex="0" data-id="${n.id}"><line x1="${o.x}" x2="${o.x}" y1="${y}" y2="${BASE}" pointer-events="none" stroke="${c}" stroke-opacity=".35" stroke-width="1.2"/><circle cx="${o.x}" cy="${y}" r="${r}" fill="${top?c:'var(--bg)'}" stroke="${c}" stroke-width="1.6"/>
+ const ax=[];for(let y=TY0;y<=2015;y++){const x=PX+(y-TY0)*TPXY,dec=y%10===0;ax.push(`<line x1="${x}" x2="${x}" y1="${BASE}" y2="${BASE+(dec?10:5)}" stroke="var(--muted)"/>`+(dec?`<line x1="${x}" x2="${x}" y1="${TOP-10}" y2="${H}" stroke="var(--rule)"/><text x="${x+4}" y="${TOP-2}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">${y}s</text>`:''))}
+ const st=[];const lp=lab.map(o=>{const n=o.n,top=n.rank>0,y=o.sd?BASE+(o.L+1)*LV+4:BASE-(o.L+1)*LV,c=top?'var(--red)':'var(--slate)',r=top?(n.rank<=20?5.5:4.5):3.5;
+  st.push(`<line class="stem" data-s="${n.id}" x1="${o.x}" x2="${o.x}" y1="${y}" y2="${BASE}" pointer-events="none" stroke="${c}" stroke-opacity=".35" stroke-width="1.2"/>`);
+  return`<g class="node lp" tabindex="0" data-id="${n.id}"><rect x="${o.x+5}" y="${y-9}" width="${o.w-10}" height="18" rx="3" fill="var(--bg)" pointer-events="none"/><circle cx="${o.x}" cy="${y}" r="${r}" fill="${top?c:'var(--bg)'}" stroke="${c}" stroke-width="1.6"/>
   <text x="${o.x+8}" y="${y+4.5}" font-family="Oswald,sans-serif" font-weight="600" font-size="13" fill="var(--ink)">${esc(n.name)}</text>
   <rect x="${o.x-6}" y="${y-9}" width="${o.w+4}" height="18" fill="transparent"/></g>`}).join('');
- svg.innerHTML=`<g>${ax.join('')}<line x1="${PX}" x2="${W-PX}" y1="${BASE}" y2="${BASE}" stroke="var(--muted)"/></g><g>${lp}</g>`};
+ svg.innerHTML=`<g>${ax.join('')}<line x1="${PX}" x2="${W-PX}" y1="${BASE}" y2="${BASE}" stroke="var(--muted)"/></g><g>${st.join('')}</g><g>${lp}</g>`};
 const setView=v=>{pinned=null;clear();render(v);document.querySelectorAll('.views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));try{history.replaceState(null,'',v==='tl'?'#timeline':location.pathname+location.search)}catch(e){}};
 document.querySelectorAll('.views button').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();setView(b.dataset.v)}));
 window.addEventListener('hashchange',()=>setView(location.hash==='#timeline'?'tl':'tree'));
