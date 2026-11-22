@@ -248,7 +248,7 @@ const WL=PX*2+(Y1-Y0)*PXY+CW,HL=PY+rows.length*RH;
 N.forEach(n=>n.L={x:n.x,yy:n.yy,r:n.r,tx:n.tx});
 const TPXY=24,LV=21,ctx=document.createElement('canvas').getContext('2d');
 const lw=n=>{ctx.font='600 13px Oswald, Impact, sans-serif';let w=ctx.measureText(n.name).width;return w+16};
-const lab=[];N.slice().sort((a,b)=>a.year-b.year||(a.rank||999)-(b.rank||999)).forEach(n=>{const x=PX+(n.year-Y0)*TPXY,w=lw(n);
+const lab=[];N.filter(n=>n.rank>0).sort((a,b)=>a.year-b.year||(a.rank||999)-(b.rank||999)).forEach(n=>{const x=PX+(n.year-Y0)*TPXY,w=lw(n);
  const fr=(sd,L)=>!lab.some(o=>o.sd===sd&&o.L===L&&x-4<o.x+o.w+6&&x+w>o.x-4);
  let L=0,sd=0;for(;;L++){if(fr(0,L)){sd=0;break}if(fr(1,L)){sd=1;break}}
  lab.push({x,w,L,sd,n});n.T={x,L,w}});
