@@ -36,7 +36,7 @@ label.tg input{width:20px;height:20px;accent-color:var(--red)}
 .node{cursor:pointer}.node:focus{outline:none}.node:focus rect.c{stroke-width:3}
 .dim{opacity:.16;transition:opacity .15s}
 .e{fill:none;stroke:var(--ink);stroke-width:2}.e.s{stroke:var(--muted);stroke-dasharray:5 4;stroke-width:1.5}
-.hot .e{stroke-width:2.6}.e.s{display:none}.e.s.on{display:inline}
+.hot .e{stroke-width:2.6}.e.s{display:none}.e.s.on{display:inline}.tl .e{display:none}.tl .e.on{display:inline}.views{display:flex;gap:8px;margin:4px 0 18px}.views button{font:500 15px Inter,sans-serif;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}.views button.on{background:var(--red);border-color:var(--red);color:#fff}
 #tip{position:absolute;pointer-events:none;max-width:300px;background:var(--card);border:1px solid var(--rule);border-radius:8px;
  padding:10px 12px;font-size:14px;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.14);display:none;z-index:2}
 #tip b{font:600 17px Oswald,sans-serif}
@@ -60,6 +60,7 @@ td.n{font-weight:600;white-space:nowrap}
 <body>
 <section class="band">
 <h1>Rolling Stone's 100 greatest drummers, and who they learned from</h1>
+<div class="views"><button data-v="tree">Influence lineage</button><button data-v="tl">Timeline</button></div>
 
 <input type="checkbox" id="sec" checked hidden>
 <button id="gate">Click to turn on sound, then hover a drummer</button><div id="np" class="off"><div class="v"><div id="yt"></div></div><div><b id="npn"></b><span class="m" id="nps"></span></div></div>
@@ -218,7 +219,7 @@ const CLIPS={"bonham": ["RCN6eRVav5k", 0, "Rock and Roll"], "moon": ["Jtb10ZwbRe
 const N=D.map(a=>({id:a[0],name:a[1],rank:a[2],year:a[3],main:a[4],bands:a[5],p:a[6],note:a[7],also:a[8]||[]}));
 const by=Object.fromEntries(N.map(n=>[n.id,n]));
 N.forEach(n=>{if(n.p&&!by[n.p])console.warn('missing',n.p);n.also=n.also.filter(a=>by[a]);n.kids=N.filter(k=>k.p===n.id)});
-const Y0=1920,Y1=2015,PXY=20,CW=172,CH=50,RH=60,PX=28,PY=48;
+const Y0=1920,Y1=2015,PXY=20;let CW=172,CH=50;const RH=60,PX=28,PY=48;
 N.forEach(n=>{n.x=PX+(n.year-Y0)*PXY});
 const rows=[],lines=[];
 const hit=(L,a,b,g)=>(L||[]).some(([x1,x2])=>a<x2+g&&b>x1-g);
@@ -243,26 +244,26 @@ const linked=n=>N.some(k=>k.also.includes(n.id))||n.also.length;
 const SEC=rows.length+1;N.filter(n=>loose(n)&&linked(n)).sort((a,b)=>a.year-b.year).forEach(n=>put(n,SEC));
 const ISO=rows.length+1;N.filter(n=>loose(n)&&!linked(n)).sort((a,b)=>a.year-b.year).forEach(n=>put(n,ISO));
 N.forEach(n=>n.yy=PY+n.r*RH);const isoY=PY+ISO*RH-14,secY=PY+SEC*RH-14;
-const W=PX*2+(Y1-Y0)*PXY+CW,H=PY+rows.length*RH;
+const WL=PX*2+(Y1-Y0)*PXY+CW,HL=PY+rows.length*RH;
+N.forEach(n=>n.L={x:n.x,yy:n.yy,r:n.r,tx:n.tx});
+const TW=150,TH=30,TRH=36,TPXY=24,trows=[];N.slice().sort((a,b)=>a.year-b.year||(a.rank||999)-(b.rank||999)).forEach(n=>{const x=PX+(n.year-Y0)*TPXY;let r=0;while(hit(trows[r],x,x+TW,8))r++;(trows[r]=trows[r]||[]).push([x,x+TW]);n.T={x,yy:PY+r*TRH,r,tx:0}});
+const HT=PY+trows.length*TRH+10,WT=PX*2+(Y1-Y0)*TPXY+TW;let H=HL,W=WL,view='tree';
 const E=[];N.forEach(n=>{if(n.p)E.push({a:n.p,b:n.id,s:0});n.also.forEach(a=>E.push({a,b:n.id,s:1}))});
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const path=e=>{const A=by[e.a],B=by[e.b];const ya=A.yy+CH/2,yb=B.yy+CH/2;
- if(!e.s&&A.r!==B.r&&yb>ya){const x1=B.tx||A.x+18;return`M${x1},${A.yy+CH}L${x1},${yb-10}Q${x1},${yb} ${x1+10},${yb}L${B.x},${yb}`}
+ if(view==='tree'&&!e.s&&A.r!==B.r&&yb>ya){const x1=B.tx||A.x+18;return`M${x1},${A.yy+CH}L${x1},${yb-10}Q${x1},${yb} ${x1+10},${yb}L${B.x},${yb}`}
  if(B.x>A.x+CW+8){const x1=A.x+CW,m=(B.x-x1)/2;return`M${x1},${ya}C${x1+m},${ya} ${B.x-m},${yb} ${B.x},${yb}`}
  const x1=A.x+18,y1=yb>ya?A.yy+CH:A.yy;return`M${x1},${y1}C${x1},${yb} ${Math.min(x1,B.x-40)},${yb} ${B.x},${yb}`};
 const svg=document.getElementById('svg');
-svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);
-document.getElementById('tree').style.width=W+'px';
 const fit=(t,n)=>t.length>n?t.slice(0,n-1)+'…':t;
 const card=n=>{const top=n.rank>0;
+ if(view!=='tree')return`<g class="node" tabindex="0" data-id="${n.id}" transform="translate(${n.x},${n.yy})"><rect class="c" width="${CW}" height="${CH}" rx="6" fill="var(--${top?'redbg':'slatebg'})" stroke="var(--${top?'red':'slate'})" stroke-width="${top?(n.rank<=20?2.2:1.3):1.1}"/><circle cx="0" cy="${CH/2}" r="4" fill="var(--${top?'red':'slate'})" stroke="var(--bg)" stroke-width="2"/>${top?`<text x="${CW-7}" y="20" text-anchor="end" font-family="Oswald,sans-serif" font-weight="600" font-size="12.5" fill="var(--red)">${n.rank}</text>`:''}<text x="9" y="20" font-family="Oswald,sans-serif" font-weight="600" font-size="${n.name.length>16?11.5:13}" fill="var(--ink)">${esc(n.name)}</text></g>`;
  return`<g class="node" tabindex="0" data-id="${n.id}" transform="translate(${n.x},${n.yy})">
  <rect class="c" width="${CW}" height="${CH}" rx="7" fill="var(--${top?'redbg':'slatebg'})" stroke="var(--${top?'red':'slate'})" stroke-width="${top?(n.rank<=20?2.4:1.4):1.25}"/>
  <circle cx="0" cy="${CH/2}" r="4.5" fill="var(--${top?'red':'slate'})" stroke="var(--bg)" stroke-width="2"/>
  ${top?`<text x="${CW-8}" y="20" text-anchor="end" font-family="Oswald,sans-serif" font-weight="600" font-size="14" fill="var(--red)">#${n.rank}</text>`:''}
  <text x="10" y="20" font-family="Oswald,sans-serif" font-weight="600" font-size="${n.name.length>15&&top?12.5:14.5}" fill="var(--ink)">${esc(n.name)}</text>
  <text x="10" y="38" font-size="10.5" fill="var(--muted)">${esc(fit(n.main,30))}</text></g>`};
-const axis=[];for(let d=Y0;d<=2010;d+=10){const x=PX+(d-Y0)*PXY;axis.push(`<line x1="${x}" x2="${x}" y1="${PY-14}" y2="${H}" stroke="var(--rule)" stroke-width="1"/><text x="${x}" y="${PY-22}" text-anchor="middle" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">${d}s</text>`)}
-svg.innerHTML=`<g>${axis.join('')}<line x1="${PX}" x2="${W-PX}" y1="${secY-20}" y2="${secY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${secY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">Other drummers cited as influences (hover a drummer to see these links)</text><line x1="${PX}" x2="${W-PX}" y1="${isoY-20}" y2="${isoY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${isoY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">No drummer named as an influence in the sources checked</text></g><g id="edges">${E.map((e,i)=>`<path class="e${e.s?' s':''}" data-i="${i}" d="${path(e)}"/>`).join('')}</g><g>${N.map(card).join('')}</g>`;
 
 let player=null,ytReady=false,armed=false,cur=null,qT=null,stopT=null;
 const np=document.getElementById('np'),gate=document.getElementById('gate');
@@ -278,10 +279,10 @@ let pinned=null;
 const light=id=>{const on=new Set([id]),eon=new Set();
  let c=by[id];while(c.p){E.forEach((e,i)=>{if(e.b===c.id&&e.a===c.p&&!e.s)eon.add(i)});on.add(c.p);c=by[c.p]}
  const down=x=>by[x].kids.forEach(k=>{on.add(k.id);E.forEach((e,i)=>{if(e.a===x&&e.b===k.id&&!e.s)eon.add(i)});down(k.id)});down(id);
- E.forEach((e,i)=>{if(e.s&&(e.a===id||e.b===id)){eon.add(i);on.add(e.a);on.add(e.b)}});svg.querySelectorAll('.e.s').forEach(p=>p.classList.toggle('on',eon.has(+p.dataset.i)));
+ E.forEach((e,i)=>{if(e.s&&(e.a===id||e.b===id)){eon.add(i);on.add(e.a);on.add(e.b)}});svg.querySelectorAll('.e').forEach(p=>p.classList.toggle('on',eon.has(+p.dataset.i)));
  svg.querySelectorAll('.node').forEach(g=>g.classList.toggle('dim',!on.has(g.dataset.id)));
  svg.querySelectorAll('.e').forEach(p=>p.classList.toggle('dim',!eon.has(+p.dataset.i)));svg.classList.add('hot')};
-const clear=()=>{stopClip();svg.querySelectorAll('.e.s.on').forEach(p=>p.classList.remove('on'));svg.querySelectorAll('.dim').forEach(x=>x.classList.remove('dim'));svg.classList.remove('hot');tip.style.display='none'};
+const clear=()=>{stopClip();svg.querySelectorAll('.e.on').forEach(p=>p.classList.remove('on'));svg.querySelectorAll('.dim').forEach(x=>x.classList.remove('dim'));svg.classList.remove('hot');tip.style.display='none'};
 const show=g=>{const n=by[g.dataset.id];light(n.id);clearTimeout(qT);qT=setTimeout(()=>playClip(n.id),180);
  const inf=n.p?by[n.p].name:'None named';const also=n.also.map(a=>by[a].name).join(', ');
  const kids=N.filter(k=>k.p===n.id||k.also.includes(n.id)).map(k=>k.name).join(', ');
@@ -291,10 +292,19 @@ const show=g=>{const n=by[g.dataset.id];light(n.id);clearTimeout(qT);qT=setTimeo
  const tb=tree.getBoundingClientRect(),gb=g.getBoundingClientRect();tip.style.display='block';
  let left=gb.right-tb.left+10;if(left+310>tree.clientWidth)left=gb.left-tb.left-310;
  tip.style.left=Math.max(4,left)+'px';tip.style.top=(gb.top-tb.top)+'px'};
-svg.querySelectorAll('.node').forEach(g=>{
+const bind=()=>svg.querySelectorAll('.node').forEach(g=>{
  g.addEventListener('mouseenter',()=>{if(!pinned)show(g)});g.addEventListener('mouseleave',()=>{if(!pinned)clear()});
  g.addEventListener('focus',()=>show(g));g.addEventListener('blur',()=>{if(!pinned)clear()});
  g.addEventListener('click',ev=>{ev.stopPropagation();if(pinned===g){pinned=null;clear()}else{pinned=g;show(g)}tip.classList.toggle('pin',!!pinned)})});
+const render=v=>{view=v;N.forEach(n=>Object.assign(n,v==='tree'?n.L:n.T));H=v==='tree'?HL:HT;W=v==='tree'?WL:WT;CW=v==='tree'?172:TW;CH=v==='tree'?50:TH;const SC=v==='tree'?PXY:TPXY;document.getElementById('tree').style.width=W+'px';
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);svg.classList.toggle('tl',v!=='tree');
+const axis=[];for(let d=Y0;d<=2010;d+=10){const x=PX+(d-Y0)*SC;axis.push(`<line x1="${x}" x2="${x}" y1="${PY-14}" y2="${H}" stroke="var(--rule)" stroke-width="1"/><text x="${x}" y="${PY-22}" text-anchor="middle" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">${d}s</text>`)}
+svg.innerHTML=`<g>${axis.join('')}${view!=='tree'?'':`<line x1="${PX}" x2="${W-PX}" y1="${secY-20}" y2="${secY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${secY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">Other drummers cited as influences (hover a drummer to see these links)</text><line x1="${PX}" x2="${W-PX}" y1="${isoY-20}" y2="${isoY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${isoY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">No drummer named as an influence in the sources checked</text>`}</g><g id="edges">${E.map((e,i)=>`<path class="e${e.s?' s':''}" data-i="${i}" d="${path(e)}"/>`).join('')}</g><g>${N.map(card).join('')}</g>`;
+bind()};
+const setView=v=>{pinned=null;clear();render(v);document.querySelectorAll('.views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));try{history.replaceState(null,'',v==='tl'?'#timeline':location.pathname+location.search)}catch(e){}};
+document.querySelectorAll('.views button').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();setView(b.dataset.v)}));
+window.addEventListener('hashchange',()=>setView(location.hash==='#timeline'?'tl':'tree'));
+setView(location.hash==='#timeline'?'tl':'tree');
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#tip'))return;if(pinned){pinned=null;tip.classList.remove('pin');clear()}});
 }
 </script>
