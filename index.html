@@ -266,7 +266,7 @@ const s=document.createElement('script');s.src='https://www.youtube.com/iframe_a
 gate.addEventListener('click',e=>{e.stopPropagation();armed=true;gate.hidden=true;if(ytReady){player.mute();player.loadVideoById({videoId:CLIPS.bonham[0],startSeconds:0});setTimeout(()=>{player.pauseVideo();player.unMute()},400)}});
 const playClip=id=>{const c=CLIPS[id];if(!c||!ytReady||!armed)return;clearTimeout(stopT);
  document.getElementById('npn').textContent=by[id].name;document.getElementById('nps').textContent='♪ '+c[2];np.classList.remove('off');
- if(cur===id){player.playVideo();return}cur=id;player.loadVideoById({videoId:c[0],startSeconds:c[1]});player.unMute();player.setVolume(85)};
+ if(cur===id){player.seekTo(c[1],true);player.playVideo();return}cur=id;player.loadVideoById({videoId:c[0],startSeconds:c[1]});player.unMute();player.setVolume(85)};
 const stopClip=()=>{clearTimeout(qT);stopT=setTimeout(()=>{if(ytReady)player.pauseVideo();np.classList.add('off')},120)};
 const tip=document.getElementById('tip'),tree=document.getElementById('tree');
 let pinned=null;
