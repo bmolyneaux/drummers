@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rolling Stone 100 Drummer Lineage (with audio)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: liner notes from a drum-history box set — confident, factual, a little loud.
+   IDEA: a lineage chart pinned up in a rehearsal room: who learned from whom.
+   PICTURE: a left-to-right family tree; top-20 cards in drumhead red, influences in slate.
+   COLOUR and TYPE: white ground, near-black ink, oxblood red accent, slate support; Oswald names, Inter text.
+   LAYOUT: title band, legend + toggle, the tree (scrolls sideways on phones), then the full table. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#121316);--ink:light-dark(#15161a,#ececef);--muted:light-dark(#5b5f69,#a3a7b1);
+ --rule:light-dark(#e3e4e8,#2b2d33);--red:light-dark(#a3161d,#e2575b);--redbg:light-dark(#fbeaea,#3a1a1c);
+ --slate:light-dark(#3d5467,#8fb0c8);--slatebg:light-dark(#edf1f5,#1d252d);--card:light-dark(#fff,#1a1b1f)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
+h1{font:600 clamp(32px,5vw,50px)/1.05 Oswald,Impact,sans-serif;margin:0 0 12px;text-wrap:balance;letter-spacing:.2px}
+h2{font:600 26px/1.1 Oswald,Impact,sans-serif;margin:0 0 14px}
+.lede{max-width:68ch;color:var(--muted);margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin:20px 0 6px;font-size:14px;color:var(--muted)}
+.key{display:inline-flex;align-items:center;gap:8px}
+.sw{width:16px;height:16px;border-radius:4px;border:2px solid}
+.sw.t{background:var(--redbg);border-color:var(--red)}.sw.i{background:var(--slatebg);border-color:var(--slate)}
+.ln{width:28px;height:0;border-top:2px solid var(--ink)}.ln.d{border-top:2px dashed var(--muted)}
+label.tg{display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;color:var(--ink)}
+label.tg input{width:20px;height:20px;accent-color:var(--red)}
+.scroll{overflow-x:auto}
+.tree{position:relative;width:2300px}
+.tree svg{display:block;width:100%;height:auto}
+.node{cursor:pointer}.node:focus{outline:none}.node:focus rect.c{stroke-width:3}
+.dim{opacity:.16;transition:opacity .15s}
+.e{fill:none;stroke:var(--ink);stroke-width:2}.e.s{stroke:var(--muted);stroke-dasharray:5 4;stroke-width:1.5}
+.hot .e{stroke-width:2.6}.e.s{display:none}.e.s.on{display:inline}
+#tip{position:absolute;pointer-events:none;max-width:300px;background:var(--card);border:1px solid var(--rule);border-radius:8px;
+ padding:10px 12px;font-size:14px;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.14);display:none;z-index:2}
+#tip b{font:600 17px Oswald,sans-serif}
+#np{position:fixed;right:16px;bottom:16px;z-index:5;display:flex;flex-direction:column;gap:8px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:8px 12px 8px 8px;box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:13px;max-width:560px;transition:opacity .2s}
+#np.off{opacity:0;pointer-events:none}#np .v{width:320px;height:180px;border-radius:6px;overflow:hidden;flex:none;background:#000}#np .v iframe{width:320px;height:180px;display:block}
+#np b{font:600 15px Oswald,sans-serif;display:block}#np .m{color:var(--muted)}
+#gate{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:6;background:var(--red);color:#fff;border:0;border-radius:999px;padding:12px 20px;font:600 15px Inter,sans-serif;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+#gate[hidden]{display:none}
+#tip .m{color:var(--muted)}#tip .clip{margin-top:6px;padding-top:6px;border-top:1px solid var(--rule)}#tip a{color:var(--red)}#tip.pin{pointer-events:auto}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;font-size:13px;color:var(--muted)}
+td.r{text-align:right;font:600 18px Oswald,sans-serif;color:var(--red);white-space:nowrap;width:3em}
+td.n{font-weight:600;white-space:nowrap}
+.src{font-size:13px;color:var(--muted);max-width:80ch}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--muted)}.stack td:empty{display:none}td.n{white-space:normal}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<section class="band">
+<h1>Rolling Stone's 100 greatest drummers, and who they learned from</h1>
+
+<input type="checkbox" id="sec" checked hidden>
+<button id="gate">Click to turn on sound, then hover a drummer</button><div id="np" class="off"><div class="v"><div id="yt"></div></div><div><b id="npn"></b><span class="m" id="nps"></span></div></div>
+<div class="scroll"><div class="tree" id="tree"><svg id="svg"></svg><div id="tip"></div></div></div>
+
+</section>
+
+<script>
+{
+const NN='No drummer named as an influence in the sources checked.';
+const D=[
+// ---- traced influences (not on the list)
+['dodds','Baby Dodds',0,1925,"King Oliver's Creole Jazz Band",["King Oliver's Creole Jazz Band","Louis Armstrong's Hot Seven"],null,'New Orleans pioneer of the jazz drum kit.'],
+['webb','Chick Webb',0,1934,'Chick Webb Orchestra',['Chick Webb Orchestra'],null,'The first drumming star of the swing era.'],
+['jojones','Papa Jo Jones',0,1938,'Count Basie Orchestra',['Count Basie Orchestra'],null,'Moved swing time onto the hi-hat.'],
+['clarke','Kenny Clarke',0,1945,'Modern Jazz Quartet',["Minton's house band",'Modern Jazz Quartet'],'jojones','Built bebop ride-cymbal time out of Jo Jones\'s swing (commonly cited).'],
+['roach','Max Roach',0,1950,'Clifford Brown–Max Roach',['Charlie Parker Quintet','Clifford Brown–Max Roach Quintet'],'clarke','Took Kenny Clarke\'s bebop approach and made it melodic.'],
+['cole','Cozy Cole',0,1942,'Cab Calloway Orchestra',['Cab Calloway Orchestra','Louis Armstrong All-Stars'],null,'Swing drummer with the 1958 hit "Topsy Part 2".'],
+['jacksr','Al Jackson Sr.',0,1945,'Al Jackson Sr. Orchestra',['Al Jackson Sr. Orchestra (Memphis)'],null,'Bandleader father of Al Jackson Jr.'],
+['hamilton','Chico Hamilton',0,1953,'Chico Hamilton Quintet',['Gerry Mulligan Quartet','Chico Hamilton Quintet'],'jojones','Swing-era brushwork in the Jo Jones line (commonly cited).'],
+['peck','Peck Curtis',0,1950,'Sonny Boy Williamson II',['Sonny Boy Williamson II','King Biscuit Time radio'],null,'Delta blues drummer on King Biscuit Time.'],
+['bellson','Louie Bellson',0,1952,'Duke Ellington Orchestra',['Duke Ellington Orchestra','Benny Goodman'],null,'Big-band drummer, pioneer of the double bass drum.'],
+['coleman','Cornelius Coleman',0,1955,'Fats Domino',['Fats Domino'],null,'Drummer on Fats Domino\'s "Ain\'t That a Shame".'],
+['heywood','Mr. Heywood',0,1952,"Purdie's teacher",['Drum teacher, Elkton MD'],null,'Local teacher Purdie names first among his inspirations.'],
+['philly','Philly Joe Jones',0,1957,'Miles Davis Quintet',['Miles Davis Quintet'],null,'Hard-bop drummer of Miles Davis\'s first great quintet.'],
+['blakey','Art Blakey',0,1958,'The Jazz Messengers',['Art Blakey & the Jazz Messengers'],'webb','Learned from Chick Webb, working as his valet.'],
+['puente','Tito Puente',0,1958,'Tito Puente Orchestra',['Tito Puente Orchestra'],null,'Latin percussion and big-band leader.'],
+['seamen','Phil Seamen',0,1958,'Joe Harriott Quintet',['Ronnie Scott','Joe Harriott Quintet'],null,'British jazz drummer; Ginger Baker\'s mentor.'],
+['haynes','Roy Haynes',0,1958,'Roy Haynes groups',['Sarah Vaughan','Thelonious Monk','Chick Corea'],'jojones','Swing-to-bebop drummer influenced by Jo Jones (commonly cited).'],
+['morello','Joe Morello',0,1959,'Dave Brubeck Quartet',['Dave Brubeck Quartet'],null,'Odd-meter master of "Take Five".'],
+['olatunji','Babatunde Olatunji',0,1960,'Drums of Passion',['Drums of Passion (1959 album)'],null,'Nigerian drummer whose 1959 album brought African drumming to the US.'],
+['dawson','Alan Dawson',0,1960,'Berklee teacher',['Teacher at Berklee','Dave Brubeck Quartet'],null,'Boston teacher of Tony Williams, Steve Smith and JR Robinson.'],
+['meehan','Tony Meehan',0,1960,'The Shadows',['The Shadows'],null,'Drummer of the Shadows.'],
+['little','Carlo Little',0,1961,'The Savages',['Screaming Lord Sutch & the Savages'],null,'British R&B drummer who gave a teenage Keith Moon lessons.'],
+['smokey','Smokey Johnson',0,1963,'Fats Domino',['Dave Bartholomew band','Fats Domino'],'palmer','Took Earl Palmer\'s chair in Bartholomew\'s band.'],
+['knibb','Lloyd Knibb',0,1964,'The Skatalites',['The Skatalites'],null,'Ska drummer who shaped Jamaican drumming.'],
+['escovedo','Pete Escovedo',0,1972,'Azteca',['Santana','Azteca'],null,'Percussionist; Sheila E.\'s father.'],
+['bonnie','Joe Bonnie',0,1971,'Dublin drum teacher',['Drum teacher, Dublin'],null,'Taught a nine-year-old Larry Mullen Jr.'],
+['marotta','Rick Marotta',0,1975,'Session (Steely Dan)',['Steely Dan','Linda Ronstadt'],null,'Session drummer with a "less is more" style.'],
+['animal','Animal',0,1977,'The Muppet Show',['The Electric Mayhem (The Muppet Show)'],null,'The Muppet drummer; Travis Barker\'s first hero.'],
+['headon','Topper Headon',0,1979,'The Clash',['The Clash'],null,'Drummer of the Clash.'],
+['aldridge','Tommy Aldridge',0,1981,'Ozzy Osbourne',['Black Oak Arkansas','Ozzy Osbourne'],null,'Double-bass hard-rock drummer.'],
+['payne','Sonny Payne',0,1958,'Count Basie Orchestra',['Count Basie Orchestra'],null,'Flamboyant big-band drummer of the 1950s Basie band.'],
+['tate','Grady Tate',0,1968,'Session (Quincy Jones, Jimmy Smith)',['Quincy Jones','Jimmy Smith','Session'],null,'Jazz session drummer and singer.'],
+['hgadson','Harold Gadson',0,1950,'Kansas City scene',['Kansas City bands'],null,'Kansas City drummer; James Gadson\'s father.'],
+['knapp','Roy C. Knapp',0,1935,'Knapp School of Percussion',['Roy C. Knapp School of Percussion (Chicago)'],null,'Chicago percussion teacher and school founder.'],
+['snelson','Sandy Nelson',0,1960,'"Teen Beat" (1959)',['Solo instrumentals ("Teen Beat", "Let There Be Drums")'],null,'Drum-instrumental hitmaker.'],
+['criss','Peter Criss',0,1976,'Kiss',['Kiss'],null,'Original Kiss drummer.'],
+// ---- the list
+['bonham','John Bonham',1,1972,'Led Zeppelin',['Band of Joy','Led Zeppelin'],'krupa','Robert Plant said Bonham called Krupa "God"; he also loved Bernard Purdie.',['purdie','roach']],
+['moon','Keith Moon',2,1967,'The Who',['The Beachcombers','The Who'],'little','Took lessons from Carlo Little of the Savages.'],
+['baker','Ginger Baker',3,1967,'Cream',['Graham Bond Organisation','Cream','Blind Faith',"Ginger Baker's Air Force"],'seamen','Mentored by jazz drummer Phil Seamen.'],
+['peart','Neil Peart',4,1980,'Rush',['Rush'],'moon','Keith Moon was his teenage hero; later studied with Freddie Gruber.'],
+['blaine','Hal Blaine',5,1965,'The Wrecking Crew',['The Wrecking Crew (session)'],'krupa','Swing-era big-band drummers, Krupa first (commonly cited).'],
+['stub','Clyde Stubblefield',6,1968,'James Brown',['James Brown',"The J.B.'s"],null,'Said the audience was his only influence; inspired by trains, factories and a parade.'],
+['starks','Jabo Starks',6,1970,'James Brown',['Bobby "Blue" Bland','James Brown',"The J.B.'s",'B.B. King'],'coleman','Mentored by Cornelius "Tenoo" Coleman.'],
+['krupa','Gene Krupa',7,1937,'Benny Goodman Orchestra',['Benny Goodman Orchestra','Gene Krupa Orchestra'],'dodds','Studied Baby Dodds; also admired Chick Webb.',['webb']],
+['mitchell','Mitch Mitchell',8,1968,'Jimi Hendrix Experience',['Georgie Fame & the Blue Flames','Jimi Hendrix Experience'],'elvin','Elvin Jones\'s jazz polyrhythms, brought to rock; also Buddy Rich.',['rich','philly']],
+['jackson','Al Jackson Jr.',9,1966,"Booker T. & the M.G.'s",["Booker T. & the M.G.'s",'Willie Mitchell / Hi Records'],'jacksr','Learned on the bandstand in his father\'s Memphis big band.'],
+['copeland','Stewart Copeland',10,1980,'The Police',['Curved Air','The Police','Animal Logic','Oysterhead'],'mitchell','Mitch Mitchell, plus jazz drummers (commonly cited).'],
+['benjamin','Benny Benjamin',11,1964,'The Funk Brothers',['The Funk Brothers (Motown)'],'puente','Tito Puente and Buddy Rich.',['rich']],
+['watts','Charlie Watts',12,1969,'The Rolling Stones',['Blues Incorporated','The Rolling Stones'],'hamilton','Chico Hamilton\'s brushes on Mulligan\'s "Walkin\' Shoes" made him want to play.'],
+['fontana','D.J. Fontana',13,1956,'Elvis Presley',['Louisiana Hayride staff band','Elvis Presley'],'rich','Big-band drummers Buddy Rich and Gene Krupa.',['krupa']],
+['ringo','Ringo Starr',14,1965,'The Beatles',['Rory Storm & the Hurricanes','The Beatles'],'cole','Cozy Cole\'s "Topsy" (commonly cited).'],
+['rich','Buddy Rich',15,1945,'Buddy Rich Big Band',['Artie Shaw','Tommy Dorsey','Buddy Rich Big Band'],'webb','Called Chick Webb the greatest drummer who ever lived; also Krupa and Jo Jones.',['krupa','jojones']],
+['bruford','Bill Bruford',16,1973,'Yes',['Yes','King Crimson','Genesis (touring)','U.K.','Earthworks'],'roach','"One third" each Max Roach, Joe Morello, Art Blakey; also Ginger Baker.',['morello','blakey','baker']],
+['bozzio','Terry Bozzio',17,1977,'Frank Zappa',['Frank Zappa','U.K.','Missing Persons','Jeff Beck'],'mitchell','Named Mitch Mitchell, Carmine Appice and Ginger Baker as early influences.',['appice','baker']],
+['zig','Zigaboo Modeliste',18,1970,'The Meters',['The Meters'],'smokey','Particularly tried to emulate Smokey Johnson.'],
+['twilliams','Tony Williams',19,1966,'Miles Davis Quintet',['Miles Davis Quintet','Tony Williams Lifetime','V.S.O.P.'],'roach','Idolised Max Roach; studied with Alan Dawson.',['dawson']],
+['purdie','Bernard Purdie',20,1970,'Aretha Franklin',['Aretha Franklin (MD)','Steely Dan','King Curtis'],'heywood','His teacher Mr. Heywood, then Buddy Rich, Jo Jones, Krupa, Cozy Cole.',['rich','jojones','cole']],
+['paice','Ian Paice',21,1972,'Deep Purple',['Deep Purple','Whitesnake'],'rich','Buddy Rich (commonly cited).'],
+['helm','Levon Helm',22,1969,'The Band',['The Hawks','The Band'],'peck','Watched Peck Curtis of Sonny Boy Williamson\'s band and copied his R&B style.',['fontana']],
+['elvin','Elvin Jones',23,1963,'John Coltrane Quartet',['John Coltrane Quartet','Elvin Jones Jazz Machine'],'roach','Studied Jo Jones, Kenny Clarke and especially Max Roach.',['jojones','clarke']],
+['gadd','Steve Gadd',24,1977,'Session (Paul Simon, Steely Dan)',['Paul Simon','Steely Dan','Stuff','Eric Clapton'],'rich','Lists Buddy Rich, Elvin Jones, Tony Williams and Rick Marotta.',['elvin','twilliams','marotta']],
+['palmer','Earl Palmer',25,1957,'Little Richard',['Dave Bartholomew band','Little Richard','The Wrecking Crew'],'webb','Mentioned Chick Webb among a few influences; a tap dancer first.'],
+['carey','Danny Carey',26,2001,'Tool',['Tool'],'twilliams','Channels Tony Williams, John Bonham and Neil Peart.',['bonham','peart']],
+['grohl','Dave Grohl',27,1992,'Nirvana',['Scream','Nirvana','Foo Fighters'],'bonham','John Bonham (commonly cited).'],
+['appice','Carmine Appice',28,1968,'Vanilla Fudge',['Vanilla Fudge','Cactus','Beck, Bogert & Appice'],'rich','Buddy Rich and Gene Krupa.',['krupa']],
+['barrett','Carlton Barrett',29,1975,'Bob Marley & the Wailers',['The Upsetters','Bob Marley & the Wailers'],'knibb','Heavily influenced by Lloyd Knibb of the Skatalites.'],
+['cjames','Clifton James',30,1957,'Bo Diddley',['Bo Diddley'],null,NN],
+['hawkins','Roger Hawkins',31,1969,'Muscle Shoals Rhythm Section',['Muscle Shoals Rhythm Section'],'jackson','Called Al Jackson Jr. a principal influence; also Joe Morello on "Take Five".',['morello']],
+['gadson','James Gadson',32,1972,'Bill Withers',['Charles Wright & the Watts 103rd St. Band','Bill Withers','Session'],'hgadson','Greatly influenced by his father Harold, a Kansas City drummer.'],
+['tallen','Tony Allen',33,1975,'Fela Kuti & Africa 70',['Fela Kuti & Africa 70'],'blakey','Art Blakey (commonly cited).',['roach']],
+['hart','Mickey Hart',34,1972,'Grateful Dead',['Grateful Dead','Planet Drum'],'olatunji','Babatunde Olatunji was formative, later a teacher; also Tito Puente.',['puente']],
+['kreutz','Bill Kreutzmann',34,1972,'Grateful Dead',['Grateful Dead'],'elvin','Elvin Jones, via Phil Lesh; Mickey Hart taught him techniques.',['hart']],
+['below','Fred Below',35,1955,'Chess Records',['Little Walter','Chess Records sessions'],'knapp','A bebop drummer first; studied at the Roy C. Knapp School of Percussion.'],
+['ssmith','Steve Smith',36,1981,'Journey',['Journey','Vital Information'],'rich','Buddy Rich; studied with Alan Dawson.',['dawson']],
+['porcaro','Jeff Porcaro',37,1982,'Toto',['Steely Dan','Toto'],'gordon','Jim Gordon (commonly cited); also cited Jim Keltner.',['keltner']],
+['keltner','Jim Keltner',38,1973,'Session (ex-Beatles, Dylan)',['John Lennon','George Harrison','Bob Dylan','Traveling Wilburys'],'elvin','"If I had to pick who was most influential to me, I would say Elvin."',['philly']],
+['fulwood','Tiki Fulwood',39,1970,'Parliament-Funkadelic',['Parliament-Funkadelic'],null,NN],
+['dejohnette','Jack DeJohnette',40,1970,'Keith Jarrett Trio',['Miles Davis','Keith Jarrett Trio'],'haynes','Calls Roy Haynes his mentor; cites Roach, Blakey, Elvin and others.',['roach','blakey','elvin','twilliams']],
+['beauford','Carter Beauford',41,1996,'Dave Matthews Band',['Dave Matthews Band'],'rich','Buddy Rich (commonly cited).'],
+['ward','Bill Ward',42,1971,'Black Sabbath',['Black Sabbath'],'krupa','Gene Krupa, Buddy Rich and Louie Bellson early; later Bonham and Mitchell.',['rich','bellson','mitchell']],
+['collins','Phil Collins',43,1978,'Genesis',['Genesis','Brand X'],'rich','Buddy Rich and Ringo Starr were his earliest influences.',['ringo','cobham','twilliams','payne']],
+['allison','Jerry Allison',44,1957,'The Crickets',['The Crickets'],null,NN],
+['cobham','Billy Cobham',45,1972,'Mahavishnu Orchestra',['Miles Davis','Mahavishnu Orchestra'],'rich','Big-band drummers led by Buddy Rich; also Tony Williams and Elvin Jones.',['twilliams','elvin','payne']],
+['garibaldi','David Garibaldi',46,1973,'Tower of Power',['Tower of Power'],'stub','Tried to channel the James Brown drummers and Sonny Payne; Zigaboo was also a huge influence.',['payne','zig']],
+['lombardo','Dave Lombardo',47,1986,'Slayer',['Slayer','Fantômas'],'ward','Bill Ward, Mitch Mitchell, Bonham, Ian Paice and Ginger Baker.',['mitchell','bonham','paice']],
+['french','John French',48,1969,"Captain Beefheart's Magic Band",["Captain Beefheart's Magic Band"],'snelson','Names Sandy Nelson first; also listened closely to Roy Haynes, Blakey, Bellson, Rich, Krupa, Morello.',['haynes','blakey','bellson','rich','krupa','morello','baker']],
+['colaiuta','Vinnie Colaiuta',49,1980,'Frank Zappa, session',['Frank Zappa','Sting','Session'],'twilliams','Tony Williams (commonly cited); also Clyde Stubblefield.',['stub']],
+['powell','Cozy Powell',50,1976,'Rainbow',['Jeff Beck Group','Rainbow','Whitesnake','Black Sabbath'],'cole','Took his nickname from Cozy Cole (commonly cited).'],
+['avh','Alex Van Halen',51,1980,'Van Halen',['Van Halen'],'baker','Ginger Baker (commonly cited).'],
+['cameron','Matt Cameron',52,1992,'Soundgarden',['Soundgarden','Pearl Jam'],'moon','Called Keith Moon his biggest influence.'],
+['chamberlin','Jimmy Chamberlin',53,1993,'The Smashing Pumpkins',['The Smashing Pumpkins'],'krupa','Gene Krupa, Buddy Rich, Keith Moon, Ian Paice, John Bonham.',['rich','moon','paice','bonham']],
+['quest','Questlove',54,1999,'The Roots',['The Roots'],'stub','Thanked Stubblefield "for everything you\'ve taught me".'],
+['weinberg','Max Weinberg',55,1978,'E Street Band',['E Street Band'],'fontana','D.J. Fontana (commonly cited).'],
+['hayward','Richie Hayward',56,1973,'Little Feat',['Little Feat'],'payne','Sonny Payne of Count Basie\'s band was the first drummer to turn his head; also Earl Palmer, Mitchell, Elvin, Moon.',['palmer','mitchell','elvin','moon']],
+['katche','Manu Katché',57,1986,'Peter Gabriel, Sting',['Peter Gabriel','Sting'],null,NN],
+['sheila','Sheila E.',58,1984,'Prince',['Prince','The Revolution'],'escovedo','Learned percussion from her father, Pete Escovedo.'],
+['gordon','Jim Gordon',59,1970,'Derek and the Dominos',['Derek and the Dominos','Session'],'blaine','Hal Blaine\'s protégé.'],
+['fleetwood','Mick Fleetwood',60,1977,'Fleetwood Mac',['Fleetwood Mac'],'meehan','Heavily influenced by Tony Meehan of the Shadows.'],
+['burke','Clem Burke',61,1978,'Blondie',['Blondie'],'moon','Keith Moon, Hal Blaine, Ringo Starr and Earl Palmer.',['blaine','ringo','palmer']],
+['thompson','Tony Thompson',62,1979,'Chic',['Chic','The Power Station'],'ringo','Ringo, Mitchell, Baker and Bonham early; Gadd and Cobham later.',['mitchell','baker','bonham','gadd','cobham']],
+['chambers','Dennis Chambers',63,1985,'P-Funk, John Scofield',['Parliament-Funkadelic','John Scofield'],'stub','Stubblefield, Al Jackson Jr., Gadd, Tony Williams, Buddy Rich.',['jackson','gadd','twilliams','rich']],
+['chad','Chad Smith',64,1991,'Red Hot Chili Peppers',['Red Hot Chili Peppers'],'bonham','A long list led by Rich and Bonham; funk from Garibaldi, Starks, Stubblefield, Errico.',['rich','paice','mitchell','moon','garibaldi','errico','headon']],
+['dunbar','Sly Dunbar',65,1980,'Sly & Robbie',['Sly & Robbie','Black Uhuru'],'knibb','Called Lloyd Knibb his mentor; also studied Al Jackson Jr.',['jackson']],
+['aronoff','Kenny Aronoff',66,1985,'John Mellencamp',['John Mellencamp'],'dawson','Studied drum set with Alan Dawson and Gary Chester; the Beatles on Ed Sullivan made him want to play.',['ringo']],
+['errico','Greg Errico',67,1969,'Sly & the Family Stone',['Sly & the Family Stone'],null,NN],
+['brailey','Jerome Brailey',68,1976,'Parliament-Funkadelic',['Parliament-Funkadelic','Mutiny'],null,NN],
+['crover','Dale Crover',69,1990,'Melvins',['Melvins'],'appice','A Carmine Appice drum book got him started; Appice and Bill Ward became major influences.',['ward']],
+['tramone','Tommy Ramone',70,1976,'Ramones',['Ramones'],null,'Had never played drums before the Ramones drafted him.'],
+['trucks','Butch Trucks',71,1970,'Allman Brothers Band',['Allman Brothers Band'],'elvin','Weak link: he and Jaimoe tried to take lessons from Elvin Jones in 1974.'],
+['jaimoe','Jaimoe',71,1970,'Allman Brothers Band',['Allman Brothers Band'],'roach','Picked up sticks inspired by Krupa, Elvin Jones and Max Roach; also cites Blakey, Tony Williams, Cozy Cole.',['krupa','elvin','twilliams','blakey','cole']],
+['diamond','"Diamond" Williams',72,1974,'Ohio Players',['Ohio Players'],null,NN],
+['pthomas','Pete Thomas',73,1979,'Elvis Costello & the Attractions',['Elvis Costello & the Attractions'],'mitchell','Calls Mitch Mitchell his drumming hero.'],
+['shrieve','Michael Shrieve',74,1970,'Santana',['Santana'],'elvin','Devotee of Elvin Jones, whose memoirs he edits (commonly cited).'],
+['hudson','Earl Hudson',75,1982,'Bad Brains',['Bad Brains'],null,NN],
+['eyoung','Earl Young',76,1975,'The Trammps',['The Trammps','MFSB'],'tate','Counted jazz drummer Grady Tate among his idols; picked up tips from Stevie Wonder.'],
+['tucker','Moe Tucker',77,1967,'The Velvet Underground',['The Velvet Underground'],'olatunji','Babatunde Olatunji (commonly cited).'],
+['waller','Micky Waller',78,1968,'Jeff Beck Group',['Jeff Beck Group','Rod Stewart'],null,NN],
+['avory','Mick Avory',79,1965,'The Kinks',['The Kinks'],'rich','Mostly jazz drummers: Buddy Rich, Art Blakey, Philly Joe Jones, Joe Morello; lessons from jazz drummer Chris Hewitt.',['blakey','philly','morello']],
+['jordan','Steve Jordan',80,1985,'John Mayer Trio',['Late Night band','X-Pensive Winos','John Mayer Trio'],'jackson','Al Jackson Jr. (commonly cited).'],
+['jr','JR Robinson',81,1980,'Session (Off the Wall)',['Rufus','Michael Jackson','Session'],'dawson','Rebuilt his technique with teachers Alan Dawson and Ed Soph.'],
+['kotche','Glenn Kotche',82,2002,'Wilco',['Wilco'],null,'Came up through drum line and drum corps; ' + NN.toLowerCase()],
+['rsj','R. Shannon Jackson',83,1980,'The Decoding Society',['Ornette Coleman','The Decoding Society'],null,'Credits saxophonists Albert Ayler and Ornette Coleman; no drummer named.'],
+['stanier','John Stanier',84,2005,'Battles',['Helmet','Battles'],'peart','Cites Neil Peart as his biggest influence; also Bonham, Cobham, Bruford, Bozzio.',['bonham','cobham','bruford','bozzio']],
+['tlee','Tommy Lee',85,1985,'Mötley Crüe',['Mötley Crüe'],'bonham','John Bonham, Tommy Aldridge, Alex Van Halen, Terry Bozzio.',['aldridge','avh','bozzio']],
+['rudd','Phil Rudd',86,1979,'AC/DC',['AC/DC'],'ringo','"Ringo is incredible. He\'s the greatest"; also Ian Paice and Charlie Watts.',['paice','watts']],
+['hurley','George Hurley',87,1983,'Minutemen',['Minutemen','fIREHOSE'],'roach','Mainly jazz influences; went to see Max Roach.'],
+['theodore','Jon Theodore',88,2003,'The Mars Volta',['The Mars Volta','Queens of the Stone Age'],'cobham','Billy Cobham is his "all-time favorite drummer"; also Bonham.',['bonham','elvin','twilliams','peart']],
+['stevenson','Bill Stevenson',89,1982,'Descendents',['Black Flag','Descendents'],'watts','Self-taught; early influences Charlie Watts, Peter Criss and Bill Ward.',['criss','ward']],
+['weiss','Janet Weiss',90,1997,'Sleater-Kinney',['Quasi','Sleater-Kinney'],'bonham','Self-taught; studied John Bonham and Topper Headon.',['headon']],
+['chipp','Brian Chippendale',91,2003,'Lightning Bolt',['Lightning Bolt'],null,NN],
+['molina','Ralph Molina',92,1975,'Crazy Horse',['Crazy Horse'],null,NN],
+['haake','Tomas Haake',93,1995,'Meshuggah',['Meshuggah'],'rudd','Favourites include Phil Rudd, Bill Ward, Neil Peart.',['ward','peart']],
+['meg','Meg White',94,2003,'The White Stripes',['The White Stripes'],'tucker','Moe Tucker is the clearest influence on her style.'],
+['cdave','Chris Dave',95,2011,"D'Angelo, Robert Glasper",["D'Angelo",'Robert Glasper Experiment','Mint Condition'],null,'Credits jazz as his strongest influence; no drummer named.'],
+['mullen','Larry Mullen Jr.',96,1987,'U2',['U2'],'bonnie','Taught by Dublin drummer Joe Bonnie from age nine.'],
+['blackman','Cindy Blackman',97,1993,'Lenny Kravitz',['Lenny Kravitz','Santana'],'twilliams','Tony Williams (commonly cited).'],
+['adler','Steven Adler',98,1987,"Guns N' Roses",["Guns N' Roses"],null,NN],
+['barker','Travis Barker',99,1999,'Blink-182',['Blink-182'],'animal','Credits Animal from the Muppets as his first hero; also Bonham, Van Halen, Lee, Carey.',['bonham','avh','tlee','carey']],
+['vander','Christian Vander',100,1973,'Magma',['Magma'],'elvin','Elvin Jones and the Coltrane quartet (commonly cited).'],
+];
+
+const CLIPS={"bonham": ["JM3fodiK9rY", 0, "When the Levee Breaks"], "moon": ["Jtb10ZwbReY", 458, "Won't Get Fooled Again (the big return)"], "baker": ["f3y8jf01UY8", 0, "Sunshine of Your Love"], "peart": ["auLBLk4ibAk", 0, "Tom Sawyer"], "blaine": ["jSPpbOGnFgk", 0, "Be My Baby"], "stub": ["8bztE5IbQOo", 0, "Cold Sweat"], "starks": ["y-_6YapZ_44", 0, "Get Up (I Feel Like Being a) Sex Machine"], "krupa": ["u_E0UVNtJ9Y", 0, "Sing, Sing, Sing"], "mitchell": ["gsCkMymhXbM", 0, "Fire"], "jackson": ["0oox9bJaGJ8", 0, "Green Onions"], "copeland": ["kmJce02JHWM", 0, "Walking on the Moon"], "benjamin": ["kZf3Byq8oLA", 0, "Uptight (Everything's Alright)"], "watts": ["1sWqmMAvmdU", 0, "Get Off of My Cloud"], "fontana": ["-eHJ12Vhpyc", 0, "Hound Dog"], "ringo": ["oolpPmuK2I8", 0, "Come Together"], "rich": ["SB3mI6lMpuw", 0, "Channel One Suite"], "bruford": ["X_pDwv3tpug", 0, "Red"], "bozzio": ["AQt2inyxNNg", 0, "The Black Page"], "zig": ["MXI5Nuz6OHg", 0, "Cissy Strut"], "twilliams": ["TtX2nrWKaTE", 0, "Emergency!"], "purdie": ["Hx5ZlTyzU-k", 0, "Home at Last (Purdie shuffle)"], "paice": ["ZQGstnfTmAk", 0, "Burn"], "helm": ["kBGSf9kViEY", 0, "Up on Cripple Creek"], "elvin": ["aGT7AFCTpzU", 0, "A Love Supreme, Pt. III: Pursuance"], "gadd": ["ABXtWqmArUU", 0, "50 Ways to Leave Your Lover"], "palmer": ["Cj059o9OwqY", 0, "Tutti Frutti"], "carey": ["q0BOpkA2Vs4", 0, "Ticks & Leeches"], "grohl": ["hTWKbfoikeg", 0, "Smells Like Teen Spirit"], "appice": ["R3ChToIvLRM", 0, "You Keep Me Hangin' On"], "barrett": ["u8n_14AsBKs", 0, "One Drop"], "cjames": ["lJj22Z006ec", 0, "Bo Diddley"], "hawkins": ["A134hShx_gw", 0, "Respect"], "gadson": ["NuYDKzky4z0", 0, "Use Me"], "tallen": ["-3j0nugz1Pw", 0, "Zombie"], "hart": ["_YXCLYVjDDk", 0, "King Clave (Planet Drum)"], "kreutz": ["h_bwoXuUGho", 0, "Truckin'"], "below": ["0bnBhBkFq8I", 0, "Off the Wall"], "ssmith": ["kLDVTfQGDe4", 0, "Any Way You Want It"], "porcaro": ["qmOLtTGvsbM", 0, "Rosanna (half-time shuffle)"], "keltner": ["rm9coqlk8fY", 0, "Knockin' on Heaven's Door"], "fulwood": ["BKCJcJRbgzE", 0, "I'll Bet You"], "dejohnette": ["tDZuQTe3oaE", 0, "Miles Runs the Voodoo Down"], "beauford": ["MNgJBIx-hK8", 0, "Ants Marching"], "ward": ["bc5Nk1DXyEY", 0, "War Pigs"], "collins": ["cuHvKksNriE", 219, "In the Air Tonight (the fill)"], "allison": ["Zpni8tmIzaM", 0, "Peggy Sue"], "cobham": ["b1rX9E8NuRw", 0, "Stratus"], "garibaldi": ["oAatPPEaZDA", 0, "What Is Hip?"], "lombardo": ["hFjoOOPU6Xo", 0, "Raining Blood"], "french": ["NZFG1yAxjdQ", 0, "Moonlight on Vermont"], "colaiuta": ["pG7_gceIFL4", 0, "Seven Days"], "powell": ["YmJIccPWnEk", 0, "Stargazer"], "avh": ["7grUgixqH8I", 0, "Hot for Teacher"], "cameron": ["Vl0X1WtQUIg", 0, "Spoonman"], "chamberlin": ["8pSqPcq9Riw", 0, "Geek U.S.A."], "quest": ["ojC0mg2hJCc", 0, "The Seed (2.0)"], "weinberg": ["Wu4_zVxmufY", 0, "Born to Run"], "hayward": ["80TUlmVOEAQ", 0, "Fat Man in the Bathtub"], "katche": ["OJWJE0x7T4Q", 0, "Sledgehammer"], "sheila": ["6Zqtl8azCs8", 0, "The Glamorous Life"], "gordon": ["TngViNw2pOo", 0, "Layla"], "fleetwood": ["oiosqtFLBBA", 0, "Go Your Own Way"], "burke": ["TU3-lS_Gryk", 0, "Dreaming"], "thompson": ["WbRvU0vMYcc", 0, "Some Like It Hot"], "chambers": ["vddHCJYH89Q", 0, "Blue Matter"], "chad": ["Mr_uHJPUlO8", 0, "Give It Away"], "dunbar": ["Tc1IphRx1pk", 0, "Pull Up to the Bumper"], "aronoff": ["h04CH9YZcpI", 140, "Jack & Diane (drum break)"], "errico": ["42YGprrAOj0", 0, "Sing a Simple Song"], "brailey": ["Iq8bTcEIu-E", 0, "P-Funk (Wants to Get Funked Up)"], "crover": ["3RMmIJn_4FA", 0, "Honey Bucket"], "tramone": ["skdE0KAFCEA", 0, "Blitzkrieg Bop"], "trucks": ["dWy3Q30Cn2A", 0, "Statesboro Blues (Fillmore East)"], "jaimoe": ["YSuoW8MTbZY", 0, "Whipping Post (Fillmore East)"], "diamond": ["1xqMY8UAGgg", 0, "Fire"], "pthomas": ["3Y71iDvCYXA", 0, "Pump It Up"], "shrieve": ["JaaT_HRb4GU", 0, "Soul Sacrifice (Woodstock)"], "hudson": ["_xz2kr4ovZs", 0, "Banned in D.C."], "eyoung": ["ZTt649Hvtxs", 0, "The Love I Lost"], "tucker": ["99og_g7rXnA", 0, "I'm Waiting for the Man"], "waller": ["QXobprclSak", 0, "Shapes of Things"], "avory": ["LemG0cvc4oU", 0, "Lola"], "jordan": ["s7KzzospHVY", 0, "Who Did You Think I Was"], "jr": ["aCjxP58Ydik", 0, "Rock with You"], "kotche": ["Yk541WmcoSg", 0, "Spiders (Kidsmoke)"], "rsj": ["wuMFAXEtymc", 0, "Man Dance"], "stanier": ["IpGp-22t0lU", 0, "Atlas"], "tlee": ["CzRFOP-lDG8", 0, "Kickstart My Heart"], "rudd": ["pAgnJDJN4VA", 0, "Back in Black"], "hurley": ["Cgv522f5wfU", 0, "Corona"], "theodore": ["neSQgkEy_xQ", 0, "Inertiatic ESP"], "stevenson": ["x9PPlQp5DT4", 0, "Suburban Home"], "weiss": ["pVp6A0Ufots", 0, "Dig Me Out"], "chipp": ["JGyANR4fiDw", 0, "Dracula Mountain"], "molina": ["Ck_MfAdmTeg", 0, "Cinnamon Girl"], "haake": ["qc98u-eGzlc", 0, "Bleed"], "meg": ["0J2QdDbelmY", 0, "Seven Nation Army"], "cdave": ["t2r5yqjlVrI", 0, "1000 Deaths"], "mullen": ["zhMD7nt1LIg", 0, "Sunday Bloody Sunday"], "blackman": ["qPG8gv3sS84", 0, "Drum solo"], "adler": ["27rKrR424cA", 0, "Mr. Brownstone"], "barker": ["5ieYcCunCjI", 0, "Feeling This"], "vander": ["HAkSVTDfBVE", 0, "De Futura"], "dodds": ["plfshlhD_BY", 0, "Drum Improvisations"], "webb": ["PakbFcYKQXo", 0, "Liza (All the Clouds'll Roll Away)"], "jojones": ["eLFj-J54l3g", 0, "Jumpin' at the Woodside"], "clarke": ["-CEnBVQoMsA", 0, "Walkin'"], "roach": ["_AS71j5nysw", 0, "The Drum Also Waltzes"], "cole": ["8C9mUxwl7ho", 0, "Topsy, Pt. 2"], "hamilton": ["6_VzJ-J9Nvo", 0, "Walkin' Shoes"], "bellson": ["L_ERp2c5cd4", 0, "Skin Deep"], "coleman": ["I6JZW7zMDfY", 0, "Ain't That a Shame"], "philly": ["k94zDsJ-JMU", 0, "Milestones"], "blakey": ["vthIOj4l4QA", 0, "The Freedom Rider"], "puente": ["9LDea8s4yZE", 0, "Ran Kan Kan"], "seamen": ["0L3ACAoPA8o", 0, "Film clip"], "haynes": ["dZOprqPzpZY", 0, "Matrix"], "morello": ["vmDDOFXSgAs", 0, "Take Five"], "olatunji": ["8wp1PKuqwPk", 0, "Akiwowo"], "meehan": ["7TwULx_wDiI", 0, "Apache"], "little": ["lWCOFkyeGNs", 0, "Jack the Ripper"], "smokey": ["FcC-5wgsJR0", 0, "It Ain't My Fault"], "knibb": ["wtESlTKBa4s", 0, "Guns of Navarone"], "escovedo": ["Y1MdkIGxfao", 0, "Ah! Ah!"], "marotta": ["u_pt3khMRFs", 0, "Peg"], "animal": ["z5y6Jk19YDU", 0, "Drum battle with Buddy Rich"], "headon": ["bJ9r8LMU9bQ", 0, "Rock the Casbah"], "aldridge": ["LplPi2CxNHI", 0, "Bark at the Moon"], "payne": ["enijgnO_UA8", 0, "April in Paris"], "tate": ["vn3RQivRrmA", 0, "The Cat"], "snelson": ["zC9okWm8A6o", 0, "Let There Be Drums"], "criss": ["4okh7Y25dmQ", 0, "Detroit Rock City"]};
+const N=D.map(a=>({id:a[0],name:a[1],rank:a[2],year:a[3],main:a[4],bands:a[5],p:a[6],note:a[7],also:a[8]||[]}));
+const by=Object.fromEntries(N.map(n=>[n.id,n]));
+N.forEach(n=>{if(n.p&&!by[n.p])console.warn('missing',n.p);n.also=n.also.filter(a=>by[a]);n.kids=N.filter(k=>k.p===n.id)});
+const Y0=1920,Y1=2015,PXY=20,CW=172,CH=50,RH=60,PX=28,PY=48;
+N.forEach(n=>{n.x=PX+(n.year-Y0)*PXY});
+const rows=[];const free=(r,x)=>!(rows[r]||[]).some(([a,b])=>x<b+16&&x+CW>a-16);
+const put=(n,r)=>{r=Math.max(0,r);while(!free(r,n.x))r++;(rows[r]=rows[r]||[]).push([n.x,n.x+CW]);n.r=r};
+const clearPath=(r,a,b)=>!(rows[r]||[]).some(([x1,x2])=>x2>a&&x1<b);
+const trunk=(r,x)=>!(rows[r]||[]).some(([x1,x2])=>x>x1-4&&x<x2+4);
+const go=n=>{if(n.p){const P=by[n.p];const tx=P.x+18;let pick=-1;
+ for(let k=0;k<40&&pick<0;k++){const r0=P.r+k;
+  if(k===0){if(free(r0,n.x)&&clearPath(r0,P.x+CW+1,n.x))pick=r0;continue}
+  if(k>1&&!trunk(r0-1,tx))break;
+  if(free(r0,n.x)&&clearPath(r0,tx-4,n.x))pick=r0}
+ if(pick<0){pick=rows.length}
+ put(n,pick)}else put(n,rows.length);n.kids.slice().sort((a,b)=>a.year-b.year).forEach(go)};
+const loose=n=>!n.p&&!n.kids.length;
+N.filter(n=>!n.p&&n.kids.length).sort((a,b)=>a.year-b.year).forEach(go);
+// loose nodes: next to a drummer they influenced if any, else first free row
+const linked=n=>N.some(k=>k.also.includes(n.id))||n.also.length;
+const SEC=rows.length+1;N.filter(n=>loose(n)&&linked(n)).sort((a,b)=>a.year-b.year).forEach(n=>put(n,SEC));
+const ISO=rows.length+1;N.filter(n=>loose(n)&&!linked(n)).sort((a,b)=>a.year-b.year).forEach(n=>put(n,ISO));
+N.forEach(n=>n.yy=PY+n.r*RH);const isoY=PY+ISO*RH-14,secY=PY+SEC*RH-14;
+const W=PX*2+(Y1-Y0)*PXY+CW,H=PY+rows.length*RH;
+const E=[];N.forEach(n=>{if(n.p)E.push({a:n.p,b:n.id,s:0});n.also.forEach(a=>E.push({a,b:n.id,s:1}))});
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const path=e=>{const A=by[e.a],B=by[e.b];const ya=A.yy+CH/2,yb=B.yy+CH/2;
+ if(!e.s&&A.r!==B.r&&yb>ya){const x1=A.x+18;return`M${x1},${A.yy+CH}L${x1},${yb-10}Q${x1},${yb} ${x1+10},${yb}L${B.x},${yb}`}
+ if(B.x>A.x+CW+8){const x1=A.x+CW,m=(B.x-x1)/2;return`M${x1},${ya}C${x1+m},${ya} ${B.x-m},${yb} ${B.x},${yb}`}
+ const x1=A.x+18,y1=yb>ya?A.yy+CH:A.yy;return`M${x1},${y1}C${x1},${yb} ${Math.min(x1,B.x-40)},${yb} ${B.x},${yb}`};
+const svg=document.getElementById('svg');
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);
+document.getElementById('tree').style.width=W+'px';
+const fit=(t,n)=>t.length>n?t.slice(0,n-1)+'…':t;
+const card=n=>{const top=n.rank>0;
+ return`<g class="node" tabindex="0" data-id="${n.id}" transform="translate(${n.x},${n.yy})">
+ <rect class="c" width="${CW}" height="${CH}" rx="7" fill="var(--${top?'redbg':'slatebg'})" stroke="var(--${top?'red':'slate'})" stroke-width="${top?(n.rank<=20?2.4:1.4):1.25}"/>
+ <circle cx="0" cy="${CH/2}" r="4.5" fill="var(--${top?'red':'slate'})" stroke="var(--bg)" stroke-width="2"/>
+ ${top?`<text x="${CW-8}" y="20" text-anchor="end" font-family="Oswald,sans-serif" font-weight="600" font-size="14" fill="var(--red)">#${n.rank}</text>`:''}
+ <text x="10" y="20" font-family="Oswald,sans-serif" font-weight="600" font-size="${n.name.length>15&&top?12.5:14.5}" fill="var(--ink)">${esc(n.name)}</text>
+ <text x="10" y="38" font-size="10.5" fill="var(--muted)">${esc(fit(n.main,30))}</text></g>`};
+const axis=[];for(let d=Y0;d<=2010;d+=10){const x=PX+(d-Y0)*PXY;axis.push(`<line x1="${x}" x2="${x}" y1="${PY-14}" y2="${H}" stroke="var(--rule)" stroke-width="1"/><text x="${x}" y="${PY-22}" text-anchor="middle" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">${d}s</text>`)}
+svg.innerHTML=`<g>${axis.join('')}<line x1="${PX}" x2="${W-PX}" y1="${secY-20}" y2="${secY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${secY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">Other drummers cited as influences (hover a drummer to see these links)</text><line x1="${PX}" x2="${W-PX}" y1="${isoY-20}" y2="${isoY-20}" stroke="var(--muted)" stroke-width="1"/><text x="${PX}" y="${isoY-4}" font-family="Oswald,sans-serif" font-size="15" fill="var(--muted)">No drummer named as an influence in the sources checked</text></g><g id="edges">${E.map((e,i)=>`<path class="e${e.s?' s':''}" data-i="${i}" d="${path(e)}"/>`).join('')}</g><g>${N.map(card).join('')}</g>`;
+
+let player=null,ytReady=false,armed=false,cur=null,qT=null,stopT=null;
+const np=document.getElementById('np'),gate=document.getElementById('gate');
+window.onYouTubeIframeAPIReady=()=>{player=new YT.Player('yt',{width:320,height:180,playerVars:{controls:0,disablekb:1,playsinline:1,rel:0,fs:0,iv_load_policy:3},events:{onReady:()=>{ytReady=true},onError:()=>{document.getElementById('nps').textContent='Clip blocked from embedding: use the YouTube link'}}})};
+const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';document.head.appendChild(s);
+gate.addEventListener('click',e=>{e.stopPropagation();armed=true;gate.hidden=true;if(ytReady){player.mute();player.loadVideoById({videoId:CLIPS.bonham[0],startSeconds:0});setTimeout(()=>{player.pauseVideo();player.unMute()},400)}});
+const playClip=id=>{const c=CLIPS[id];if(!c||!ytReady||!armed)return;clearTimeout(stopT);
+ document.getElementById('npn').textContent=by[id].name;document.getElementById('nps').textContent='♪ '+c[2];np.classList.remove('off');
+ if(cur===id){player.playVideo();return}cur=id;player.loadVideoById({videoId:c[0],startSeconds:c[1]});player.unMute();player.setVolume(85)};
+const stopClip=()=>{clearTimeout(qT);stopT=setTimeout(()=>{if(ytReady)player.pauseVideo();np.classList.add('off')},120)};
+const tip=document.getElementById('tip'),tree=document.getElementById('tree');
+let pinned=null;
+const light=id=>{const on=new Set([id]),eon=new Set();
+ let c=by[id];while(c.p){E.forEach((e,i)=>{if(e.b===c.id&&e.a===c.p&&!e.s)eon.add(i)});on.add(c.p);c=by[c.p]}
+ const down=x=>by[x].kids.forEach(k=>{on.add(k.id);E.forEach((e,i)=>{if(e.a===x&&e.b===k.id&&!e.s)eon.add(i)});down(k.id)});down(id);
+ E.forEach((e,i)=>{if(e.s&&(e.a===id||e.b===id)){eon.add(i);on.add(e.a);on.add(e.b)}});svg.querySelectorAll('.e.s').forEach(p=>p.classList.toggle('on',eon.has(+p.dataset.i)));
+ svg.querySelectorAll('.node').forEach(g=>g.classList.toggle('dim',!on.has(g.dataset.id)));
+ svg.querySelectorAll('.e').forEach(p=>p.classList.toggle('dim',!eon.has(+p.dataset.i)));svg.classList.add('hot')};
+const clear=()=>{stopClip();svg.querySelectorAll('.e.s.on').forEach(p=>p.classList.remove('on'));svg.querySelectorAll('.dim').forEach(x=>x.classList.remove('dim'));svg.classList.remove('hot');tip.style.display='none'};
+const show=g=>{const n=by[g.dataset.id];light(n.id);clearTimeout(qT);qT=setTimeout(()=>playClip(n.id),180);
+ const inf=n.p?by[n.p].name:'None named';const also=n.also.map(a=>by[a].name).join(', ');
+ const kids=N.filter(k=>k.p===n.id||k.also.includes(n.id)).map(k=>k.name).join(', ');
+ tip.innerHTML=`<b>${esc(n.name)}</b>${n.rank?` <span class="m">· No. ${n.rank}</span>`:''}<br><span class="m">Peak:</span> ~${n.year}<br>
+ <span class="m">Bands:</span> ${esc(n.bands.join(', '))}<br><span class="m">Main influence:</span> ${esc(inf)}${also?`<br><span class="m">Also:</span> ${esc(also)}`:''}
+ ${kids?`<br><span class="m">Influenced:</span> ${esc(kids)}`:''}<br><span class="m">${esc(n.note)}</span>${CLIPS[n.id]?`<div class="clip">♪ ${esc(CLIPS[n.id][2])} · <a href="https://www.youtube.com/watch?v=${CLIPS[n.id][0]}&t=${CLIPS[n.id][1]}s" target="_blank" rel="noopener">YouTube</a></div>`:''}`;
+ const tb=tree.getBoundingClientRect(),gb=g.getBoundingClientRect();tip.style.display='block';
+ let left=gb.right-tb.left+10;if(left+310>tree.clientWidth)left=gb.left-tb.left-310;
+ tip.style.left=Math.max(4,left)+'px';tip.style.top=(gb.top-tb.top)+'px'};
+svg.querySelectorAll('.node').forEach(g=>{
+ g.addEventListener('mouseenter',()=>{if(!pinned)show(g)});g.addEventListener('mouseleave',()=>{if(!pinned)clear()});
+ g.addEventListener('focus',()=>show(g));g.addEventListener('blur',()=>{if(!pinned)clear()});
+ g.addEventListener('click',ev=>{ev.stopPropagation();if(pinned===g){pinned=null;clear()}else{pinned=g;show(g)}tip.classList.toggle('pin',!!pinned)})});
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#tip'))return;if(pinned){pinned=null;tip.classList.remove('pin');clear()}});
+}
+</script>
+</body>
+</html>
